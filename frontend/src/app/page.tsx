@@ -6,6 +6,7 @@ import BuyingHouseServices from "@/components/Home/BuyingHouseServices";
 import ProductsServices from "@/components/Home/ProductsServices";
 import FactoryCapabilities from "@/components/Home/FactoryCapabilities";
 import HomeCTA from "@/components/Home/HomeCTA";
+import ServicesSection from "@/components/Home/ServicesSection";
 
 export default function HomePage() {
   return (
@@ -14,6 +15,7 @@ export default function HomePage() {
       <WhyChooseUs />
       <HomeProcess />
       <ServicesHighlight />
+      <ServicesSection></ServicesSection>
       <BuyingHouseServices />
       <ProductsServices />
       <FactoryCapabilities />

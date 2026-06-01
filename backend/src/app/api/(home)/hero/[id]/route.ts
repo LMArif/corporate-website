@@ -1,11 +1,22 @@
 import { connectDB } from "@/lib/mongodb";
-import Hero from "@/models/Hero";
+import Hero from "@/models/home/Hero";
 import { NextResponse } from "next/server";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+
 type Params = {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 };
 
 export async function PUT(req: Request, { params }: Params) {
@@ -26,29 +37,38 @@ export async function PUT(req: Request, { params }: Params) {
           success: false,
           message: "Hero not found",
         },
-        { status: 404 }
+        {
+          status: 404,
+          headers: corsHeaders,
+        }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Hero updated successfully",
-      data: updatedHero,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Hero updated successfully",
+        data: updatedHero,
+      },
+      {
+        headers: corsHeaders,
+      }
+    );
   } catch (error) {
-    console.error("PUT /api/hero/[id] error:", error);
-
     return NextResponse.json(
       {
         success: false,
         message: "Failed to update hero",
       },
-      { status: 500 }
+      {
+        status: 500,
+        headers: corsHeaders,
+      }
     );
   }
 }
 
-export async function DELETE(req: Request, { params }: Params) {
+export async function DELETE(_: Request, { params }: Params) {
   try {
     await connectDB();
 
@@ -62,23 +82,32 @@ export async function DELETE(req: Request, { params }: Params) {
           success: false,
           message: "Hero not found",
         },
-        { status: 404 }
+        {
+          status: 404,
+          headers: corsHeaders,
+        }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Hero deleted successfully",
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Hero deleted successfully",
+      },
+      {
+        headers: corsHeaders,
+      }
+    );
   } catch (error) {
-    console.error("DELETE /api/hero/[id] error:", error);
-
     return NextResponse.json(
       {
         success: false,
         message: "Failed to delete hero",
       },
-      { status: 500 }
+      {
+        status: 500,
+        headers: corsHeaders,
+      }
     );
   }
 }

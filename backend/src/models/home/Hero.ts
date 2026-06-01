@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, models, model } from "mongoose";
 
-const heroSchema = new mongoose.Schema(
+const heroSchema = new Schema(
   {
     title: {
       type: String,
@@ -9,7 +9,7 @@ const heroSchema = new mongoose.Schema(
     },
     subtitle: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
     description: {
@@ -19,19 +19,23 @@ const heroSchema = new mongoose.Schema(
     },
     buttonText: {
       type: String,
-      default: "Contact Us",
+      default: "",
+      trim: true,
     },
     buttonLink: {
       type: String,
-      default: "/contact",
+      default: "",
+      trim: true,
     },
     image: {
       type: String,
       default: "",
+      trim: true,
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Hero ||
-  mongoose.model("Hero", heroSchema);
+const Hero = models.Hero || model("Hero", heroSchema);
+
+export default Hero;

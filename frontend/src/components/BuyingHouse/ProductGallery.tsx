@@ -1,108 +1,90 @@
-import Image from "next/image";
+"use client";
 
-const productGroups = [
-  {
-    title: "Woven",
-    sections: [
-      {
-        subtitle: "Five Pocket Twill",
-        items: [
-          { name: "Men’s Five Pocket TRS", image: "/images/Premium Cotton T-Shirt.jpg" },
-          { name: "Men’s Five Pocket TRS", image: "/images/Premium Cotton T-Shirt.jpg" },
-          { name: "Men’s Five Pocket TRS", image: "/images/Premium Cotton T-Shirt.jpg" },
-          { name: "Men’s Five Pocket TRS", image: "/images/Premium Cotton T-Shirt.jpg" },
-        ],
-      },
-      {
-        subtitle: "Ladies Dress & Jackets",
-        items: [
-          { name: "Ladies Dresses", image: "/images/Premium Cotton T-Shirt-ladies.jpg" },
-          { name: "Ladies Dresses", image: "/images/Premium Cotton T-Shirt-ladies.jpg" },
-          { name: "Ladies Jacket", image: "/images/Premium Cotton T-Shirt-ladies.jpg" },
-          { name: "Ladies Jacket", image: "/images/Premium Cotton T-Shirt-ladies.jpg" },
-        ],
-      },
-      {
-        subtitle: "Girls Denim",
-        items: [
-          { name: "Girls Wide Leg Jegging", image: "/images/Performance Polo-girls.jpg" },
-          { name: "Girls Wide Leg And Paper Bag", image: "/images/Performance Polo-girls.jpg" },
-          { name: "Premium Heavyweight Hoodie", image: "/images/Performance Polo-girls.jpg" },
-          { name: "Streetwear Oversized Hoodie", image: "/images/Performance Polo-girls.jpg" },
-        ],
-      },
-      {
-        subtitle: "Jeggings",
-        items: [
-          { name: "Stretch Fit Denim Jeggings", image: "/images/Performance Polo-jeg.jpg" },
-          { name: "High-Waist Slim Jeggings", image: "/images/Performance Polo-jeg.jpg" },
-          { name: "Comfort Flex Jeggings", image: "/images/Performance Polo-jeg.jpg" },
-          { name: "Streetwear Oversized Hoodie", image: "/images/Performance Polo-jeg.jpg" },
-        ],
-      },
-    ],
-  },
-  {
-    title: "Knitwear",
-    sections: [
-      {
-        subtitle: "T-Shirt",
-        items: [
-          { name: "Classic Cotton Crew T-Shirt", image: "/images/Long Sleeve Henley-tshirt.jpg" },
-          { name: "Premium Soft Touch V-Neck T-Shirt", image: "/images/Long Sleeve Henley-tshirt.jpg" },
-          { name: "Pique Polo Shirt", image: "/images/Long Sleeve Henley-tshirt.jpg" },
-          { name: "Urban Style Graphic T-Shirt", image: "/images/Long Sleeve Henley-tshirt.jpg" },
-        ],
-      },
-      {
-        subtitle: "Polo",
-        items: [
-          { name: "Classic Piqué Polo Shirt", image: "/images/Performance Polo-polo.jpg" },
-          { name: "Premium Soft Touch V-Neck T-Shirt", image: "/images/Performance Polo-polo.jpg" },
-          { name: "Sport Dry Polo Shirt", image: "/images/Performance Polo-polo.jpg" },
-          { name: "Urban Style Graphic T-Shirt", image: "/images/Performance Polo-polo.jpg" },
-        ],
-      },
-      {
-        subtitle: "Hoodie",
-        items: [
-          { name: "Classic Pullover Hoodie", image: "/images/Premium Cotton T-Shirt-hoodie.jpg" },
-          { name: "Zipper Front Fleece Hoodie", image: "/images/Premium Cotton T-Shirt-hoodie.jpg" },
-          { name: "Premium Heavyweight Hoodie", image: "/images/Premium Cotton T-Shirt-hoodie.jpg" },
-          { name: "Streetwear Oversized Hoodie", image: "/images/Premium Cotton T-Shirt-hoodie.jpg" },
-        ],
-      },
-      {
-        subtitle: "Jeggings",
-        items: [
-          { name: "Stretch Fit Denim Jeggings", image: "/images/Premium Cotton T-Shirt-kjeg.jpg" },
-          { name: "High-Waist Slim Jeggings", image: "/images/Premium Cotton T-Shirt-kjeg.jpg" },
-          { name: "Comfort Flex Jeggings", image: "/images/Premium Cotton T-Shirt-kjeg.jpg" },
-          { name: "Streetwear Oversized Hoodie", image: "/images/Premium Cotton T-Shirt-kjeg.jpg" },
-        ],
-      },
-    ],
-  },
-];
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+type ProductItem = {
+  name: string;
+  image: string;
+};
+
+type ProductSection = {
+  subtitle: string;
+  items: ProductItem[];
+};
+
+type ProductGroup = {
+  _id?: string;
+  title: string;
+  sections: ProductSection[];
+};
 
 export default function ProductGallery() {
+  const [productGroups, setProductGroups] = useState<ProductGroup[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+  const fetchProductGallery = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/product-gallery`, {
+        cache: "no-store",
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setProductGroups(data.data || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch product gallery:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProductGallery();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="bg-white px-6 pb-24">
+        <div className="mx-auto max-w-7xl py-20 text-center">
+          <p className="text-lg text-gray-600">Loading product gallery...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (!productGroups.length) {
+    return (
+      <section className="bg-white px-6 pb-24">
+        <div className="mx-auto max-w-7xl py-20 text-center">
+          <p className="text-lg text-gray-600">No product gallery found.</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="bg-white px-6 pb-24">
       <div className="mx-auto max-w-7xl">
         {productGroups.map((group, groupIndex) => (
-          <div key={groupIndex} className="mb-24">
+          <div key={group._id || groupIndex} className="mb-24">
             <h2 className="mb-12 border-b border-gray-200 pb-8 text-center text-5xl font-medium text-[#1B1E3F]">
               {group.title}
             </h2>
 
-            {group.sections.map((section, sectionIndex) => (
+            {group.sections?.map((section, sectionIndex) => (
               <div key={sectionIndex} className="mb-16">
                 <h3 className="mb-8 text-3xl font-medium text-[#1B1E3F]">
                   {section.subtitle}
                 </h3>
 
                 <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-4">
-                  {section.items.map((item, itemIndex) => (
+                  {section.items?.map((item, itemIndex) => (
                     <div
                       key={itemIndex}
                       className="overflow-hidden rounded-2xl border border-gray-200 bg-[#F7F8FB]"

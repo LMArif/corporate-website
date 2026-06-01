@@ -1,44 +1,95 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+type HeroType = {
+  _id?: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  buttonText: string;
+  buttonLink: string;
+  image: string;
+};
 
 export default function HeroSection() {
+  const [hero, setHero] = useState<HeroType | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  console.log("API_URL =", API_URL);
+
+  const fetchHero = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/hero`, {
+        cache: "no-store",
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setHero(data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch hero:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHero();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="flex min-h-[500px] items-center justify-center bg-gray-100">
+        <p className="text-lg">Loading hero...</p>
+      </section>
+    );
+  }
+
+  if (!hero) {
+    return (
+      <section className="flex min-h-[500px] items-center justify-center bg-gray-100">
+        <p className="text-lg">No hero data found.</p>
+      </section>
+    );
+  }
+
   return (
     <section
-      className="relative min-h-[520px] bg-cover bg-center bg-no-repeat sm:min-h-[600px] md:min-h-[680px] lg:min-h-[770px]"
+      className="relative min-h-[770px] bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: "url('/images/hero-bg.jpg')",
+        backgroundImage: `url(${hero.image})`,
       }}
     >
       <div className="absolute inset-0 bg-black/45" />
 
-      <div className="relative z-10 mx-auto flex min-h-[520px] max-w-7xl flex-col items-center justify-center px-4 text-center text-white sm:min-h-[600px] sm:px-6 md:min-h-[680px] lg:min-h-[770px]">
-        <div className="mb-4 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs backdrop-blur-sm sm:mb-6 sm:px-6 sm:text-sm">
-          House Of Fashion Stitching
+      <div className="relative z-10 mx-auto flex min-h-[770px] max-w-7xl flex-col items-center justify-center px-6 text-center text-white">
+        <div className="mb-6 rounded-full border border-white/30 bg-white/10 px-6 py-2 text-sm backdrop-blur-sm">
+          {hero.subtitle}
         </div>
 
-        <h1 className="max-w-xs text-3xl font-semibold leading-tight sm:max-w-2xl sm:text-4xl md:max-w-3xl md:text-5xl lg:max-w-4xl lg:text-7xl">
-          Your trusted partner
-          <br className="hidden sm:block" />
-          <span className="sm:hidden"> </span>
-          in apparel sourcing
+        <h1 className="max-w-4xl text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl lg:text-7xl">
+          {hero.title}
         </h1>
 
-        <p className="mt-4 max-w-sm text-sm leading-6 text-white/90 sm:mt-6 sm:max-w-2xl sm:text-base sm:leading-7 md:max-w-3xl md:text-lg md:leading-8">
-          We connect international buyers with reliable manufacturers across
-          Bangladesh. From product development to final shipment, we handle
-          every detail with precision and care.
+        <p className="mt-6 max-w-3xl text-base leading-7 text-white/90 sm:text-lg sm:leading-8">
+          {hero.description}
         </p>
 
-        <div className="mt-8 flex w-full max-w-xs flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:justify-center sm:gap-4">
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
           <Link
-            href="/contact"
-            className="rounded-lg bg-blue-500 px-6 py-3 text-sm font-medium text-white transition hover:bg-blue-600 sm:text-base"
+            href={hero.buttonLink}
+            className="rounded-lg bg-blue-500 px-6 py-3 font-medium text-white transition hover:bg-blue-600"
           >
-            Contact US
+            {hero.buttonText}
           </Link>
 
           <Link
             href="/about"
-            className="rounded-lg bg-white px-6 py-3 text-sm font-medium text-blue-600 transition hover:bg-gray-100 sm:text-base"
+            className="rounded-lg bg-white px-6 py-3 font-medium text-blue-600 transition hover:bg-gray-100"
           >
             Learn More
           </Link>
